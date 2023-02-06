@@ -1,0 +1,54 @@
+# This is a template `pyproject.toml` file for ops charms
+# This file is managed by bootstack-charms-spec and should not be modified
+# within individual charm repos. https://launchpad.net/bootstack-charms-spec
+
+[tool.flake8]
+ignore = ["D100", "D101", "D102", "D103", "W503", "W504"]
+exclude = ['.eggs', '.git', '.tox', '.venv', '.build', 'report']
+max-line-length = 88
+max-complexity = 10
+
+[tool.black]
+line-length = 88
+exclude = '''
+/(
+    | .eggs
+    | .git
+    | .tox
+    | .venv
+    | .build
+    | report
+)/
+'''
+
+[tool.isort]
+profile = "black"
+skip_glob = [
+  ".eggs",
+  ".git",
+  ".tox",
+  ".venv",
+  ".build",
+  "report"
+]
+
+[tool.pytest.ini_options]
+addopts = '''
+    --last-failed
+    --last-failed-no-failures all
+'''
+
+[tool.coverage.run]
+relative_files = true
+source = ["src", "lib"]
+omit = ["tests/**", "docs/**", "templates/**"]
+
+[tool.coverage.report]
+fail_under = 100
+show_missing = true
+
+[tool.coverage.html]
+directory = "report"
+
+[tool.coverage.xml]
+output = "report/coverage.xml"

@@ -1,0 +1,40 @@
+# Juju files
+.unit-state.db
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Tests files and dir
+.pytest_cache/
+.coverage
+.tox
+.venv
+reports/
+htmlcov/
+
+# Log files
+*.log
+
+# IDEs
+.idea/
+.vscode/
+
+# vi
+.*.swp
+
+# version data
+repo-info
+
+# Python builds
+deb_dist/
+dist/
+
+# Snaps
+*.snap
+
+# Builds
+.build/
+build/
+*.charm
