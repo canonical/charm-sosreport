@@ -1,0 +1,24 @@
+# Copyright 2023
+# See LICENSE file for licensing details.
+# Learn more about actions at: https://juju.is/docs/sdk/actions
+
+collect-and-upload:
+  description: Start a sosreport run on the unit.
+  params:
+    case:
+      type: int
+      description: Value to pass to the --case-id parameter of sosreport
+    extra-args:
+      type: string
+      description: Additional arguments which shall be passed to the sosreport command
+  additionalProperties: false
+interrupt-collection:
+  description: Stop any ongoing sosreport.
+  additionalProperties: false
+clean-up:
+  description: Force a cleanup of previously collected sosreports on the unit.
+  additionalProperties: false
+run-hotsos:
+  description: Run hotsos
+  additionalProperties: false
+

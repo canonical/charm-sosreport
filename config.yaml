@@ -1,0 +1,24 @@
+# Copyright 2021
+# See LICENSE file for licensing details.
+#
+options:
+  ssh-user:
+    default: "ubuntu"
+    description: Specify an SSH user for sos collect to connect to nodes with.
+    type: string
+  units:
+    default: ""
+    description: Provide a comma-delimited list of units to collect sosreports from.
+    type: string  
+  server:
+    default: "https://files.support.canonical.com/uploads/"
+    description: Specify a server to upload the sosreport.
+    type: string 
+  server-username:
+    default: "ubuntu"
+    description: ""
+    type: string 
+  server-password:
+    default: "ubuntu"
+    description: ""
+    type: string 
