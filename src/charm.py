@@ -17,7 +17,7 @@ from ops.charm import CharmBase
 from ops.framework import StoredState
 from ops.main import main
 from ops.model import ActiveStatus
-from subprocess import check_call, CalledProcessError, check_output
+from subprocess import check_call, CalledProcessError
 
 
 logger = logging.getLogger(__name__)
@@ -48,7 +48,6 @@ class SosreportCharm(CharmBase):
         if not ret:
             event.fail(msg)
             return
-        event.set
         event.set_results({"sosreports": files})
 
 
@@ -87,50 +86,34 @@ class SosreportCharm(CharmBase):
         file_server = self.model.config["server"]
         username = self.model.config["server-username"]
         password = self.model.config["server-password"]
-        access, error = self._check_sftp_access(file_server, username, password)
-        if not access:
-            msg = f"SFTP access to {file_server} is blocked: {error}"
-            logger.error(msg)
-            return False, msg
         
         for file in files:
             self._scp_transfer(file,file_server, "", username, password)
-            # upload_cmd = f"curl --retry 10 -T {file} {file_server} -u ubuntu:ubuntu | tee"
-            # logger.info(upload_cmd)
-            # try:
-            #     check_call(upload_cmd, shell=True)
-            # except CalledProcessError as e:
-            #     msg = f"{file} upload failed."
-            #     return False, msg
 
         return True, None
 
     
     def _clear_local_sos(self,files):
         for file in files:
-            os. remove(file)
-
-    def _check_sftp_access(self,server, username, password):
-        try:
-            client = paramiko.Transport((server, 22))
-            client.connect(username=username, password=password)
-        except (socket.error, paramiko.ssh_exception.AuthenticationException) as e:
-            return False, str(e)
-        else:
-            return True, None
+            os.remove(file)
 
     def _scp_transfer(self, src_files, dst_server, dst_path, username, password):
-        client = paramiko.Transport((dst_server, 22))
-        client.connect(username=username, password=password)
+        try:
+            client = paramiko.Transport((dst_server, 22))
+            client.connect(username=username, password=password)
+            sftp = client.open_sftp()
 
-        sftp = client.open_sftp()
+            for src_file in src_files:
+                dst_file = dst_path + "/" + src_file.split("/")[-1]
+                logger.info(dst_file)
+                sftp.put(src_file, dst_file)
 
-        for src_file in src_files:
-            dst_file = dst_path + "/" + src_file.split("/")[-1]
-            sftp.put(src_file, dst_file)
-
-        sftp.close()
-        client.close()
+            sftp.close()
+            client.close()
+        except (socket.error, paramiko.ssh_exception.AuthenticationException) as e:
+            logger.error(str(e))
+            return False, str(e)
+        
 
 if __name__ == "__main__":
     main(SosreportCharm, use_juju_for_storage=True)
