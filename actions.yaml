@@ -9,7 +9,6 @@ collect-and-upload:
       type: string
       description: The machines units to collect sosreport from
     case:
-      default: "123"
       type: string
       description: Value to pass to the --case-id parameter of sosreport
     extra-args:

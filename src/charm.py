@@ -88,7 +88,7 @@ class SosreportCharm(CharmBase):
         password = self.model.config["server-password"]
         
         for file in files:
-            self._scp_transfer(file,file_server, "", username, password)
+            self._scp_transfer(file,file_server, "uploads", username, password)
 
         return True, None
 
@@ -97,16 +97,17 @@ class SosreportCharm(CharmBase):
         for file in files:
             os.remove(file)
 
-    def _scp_transfer(self, src_files, dst_server, dst_path, username, password):
+    def _scp_transfer(self, src_file, dst_server, dst_path, username, password):
+        logger.info(f"server:{dst_server}")
+        logger.info(f"src file {src_file}")
         try:
             client = paramiko.Transport((dst_server, 22))
             client.connect(username=username, password=password)
-            sftp = client.open_sftp()
+            sftp = client.open_sftp_client()
 
-            for src_file in src_files:
-                dst_file = dst_path + "/" + src_file.split("/")[-1]
-                logger.info(dst_file)
-                sftp.put(src_file, dst_file)
+            dst_file = dst_path + "/" + src_file.split("/")[-1]
+            logger.info(f"target file {dst_file}")
+            sftp.put(src_file, dst_file)    
 
             sftp.close()
             client.close()
