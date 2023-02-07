@@ -5,6 +5,10 @@
 # within individual charm repos. https://launchpad.net/bootstack-charms-spec
 
 type: charm
+parts:
+  charm:
+    build-packages: [git]
+    charm-binary-python-packages: [paramiko]
 
 bases:
   - build-on:

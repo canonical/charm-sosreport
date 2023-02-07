@@ -5,8 +5,12 @@
 collect-and-upload:
   description: Start a sosreport run on the unit.
   params:
+    units: 
+      type: string
+      description: The machines units to collect sosreport from
     case:
-      type: int
+      default: "123"
+      type: string
       description: Value to pass to the --case-id parameter of sosreport
     extra-args:
       type: string
