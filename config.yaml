@@ -11,7 +11,8 @@ options:
     description: Provide a comma-delimited list of units to collect sosreports from.
     type: string  
   server:
-    default: "https://files.support.canonical.com/uploads/"
+    #default: "https://files.support.canonical.com/uploads/"
+    default: "files.support.canonical.com"
     description: Specify a server to upload the sosreport.
     type: string 
   server-username:
