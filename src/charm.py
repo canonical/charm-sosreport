@@ -4,15 +4,11 @@
 #
 # Learn more at: https://juju.is/docs/sdk
 
-"""Sosreport Charm.
-
-"""
-
 import glob
 import logging
 import os
 import socket
-from subprocess import CalledProcessError, check_call, DEVNULL
+from subprocess import DEVNULL, CalledProcessError, check_call
 
 import paramiko
 from ops.charm import CharmBase
@@ -29,6 +25,7 @@ class SosreportCharm(CharmBase):
     _stored = StoredState()
 
     def __init__(self, *args):
+        """Init."""
         super().__init__(*args)
         self.framework.observe(self.on.install, self._on_install)
         self.framework.observe(
@@ -63,13 +60,15 @@ class SosreportCharm(CharmBase):
         event -- an event object that contains information about the collection request.
 
         Returns:
-        tuple -- a tuple of boolean indicating success or failure, and error message if failure.
+        tuple -- a tuple of boolean indicating success or failure, and error message
+        if failure.
         """
         # TOFIX
         ips = "10.211.227.47"
         ssh_user = self.model.config["ssh-user"]
         # Build the sos collect command
-        collect_cmd = f"sudo -u {ssh_user} sos collect --no-local --nopasswd-sudo --batch --nodes {ips}"
+        collect_cmd = f"sudo -u {ssh_user} sos collect --no-local \
+                        --nopasswd-sudo --batch --nodes {ips}"
         collect_cmd = f"{collect_cmd} --ssh-user {ssh_user}"
 
         try:
@@ -116,21 +115,21 @@ class SosreportCharm(CharmBase):
         return True, None
 
     def _clear_local_sos(self, files):
-        "Remove local sosreport files after upload"
+        """Remove local sosreport files after upload."""
         for file in files:
             os.remove(file)
 
     def _scp_transfer(self, src_file, dst_server, dst_path, username, password):
-        "upload sosreport to ftp server."
+        """Upload sosreport to ftp server."""
         try:
             client = paramiko.Transport((dst_server, 22))
             client.connect(username=username, password=password)
             sftp = client.open_sftp_client()
 
             dst_file = src_file.split("/")[-1]
-            # If the file name begins with 'sosreport-', STS-API will add a 
+            # If the file name begins with 'sosreport-', STS-API will add a
             # comment to SF case.
-            # Rename the file from sos-collector* to sosreport*, 
+            # Rename the file from sos-collector* to sosreport*
             dst_file = dst_file.replace("sos-collector", "sosreport", 1)
             dst_file = dst_path + "/" + dst_file
             logger.info(f"target file {dst_file}")
