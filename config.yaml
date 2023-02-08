@@ -20,6 +20,6 @@ options:
     description: ""
     type: string 
   server-password:
-    default: "ubuntu"
+    default: "password"
     description: ""
     type: string 

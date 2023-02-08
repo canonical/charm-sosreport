@@ -36,7 +36,7 @@ class SosreportCharm(CharmBase):
         self.model.unit.status = ActiveStatus("Unit is ready.")
 
     def _on_collect_and_upload(self, event):
-        """Collect sosreports an upload to remove server."""
+        """Collect sosreports and upload to remove server."""
         ret, msg = self._collect_sos(event)
         if not ret:
             event.fail(msg)
@@ -50,7 +50,7 @@ class SosreportCharm(CharmBase):
             event.fail(msg)
             return
         event.set_results({"sosreports": files})
-
+        # Remove the local sosreport files after upload.
         self._clear_local_sos(files)
 
     def _collect_sos(self, event):
