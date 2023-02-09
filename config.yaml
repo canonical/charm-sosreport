@@ -9,7 +9,10 @@ options:
   units:
     default: ""
     description: Provide a comma-delimited list of units to collect sosreports from.
-    type: string  
+    type: string
+  model:
+    default: ""
+    type: string
   server:
     #default: "https://files.support.canonical.com/uploads/"
     default: "files.support.canonical.com"
@@ -22,4 +25,16 @@ options:
   server-password:
     default: "ubuntu"
     description: ""
-    type: string 
+    type: string
+  juju-username:
+    description: ""
+    type: string
+  juju-password:
+    description: ""
+    type: string
+  juju-endpoint:
+    description: ""
+    type: string
+  juju-cacert:
+    description: ""
+    type: string

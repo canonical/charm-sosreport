@@ -4,6 +4,7 @@
 #
 # Learn more at: https://juju.is/docs/sdk
 
+import asyncio
 import glob
 import logging
 import os
@@ -11,6 +12,7 @@ import socket
 from subprocess import DEVNULL, CalledProcessError, check_call
 
 import paramiko
+from juju.controller import Controller
 from ops.charm import CharmBase
 from ops.framework import StoredState
 from ops.main import main
@@ -27,6 +29,10 @@ class SosreportCharm(CharmBase):
     def __init__(self, *args):
         """Init."""
         super().__init__(*args)
+
+        self.controller = Controller(max_frame_size=6**24)
+        self.logger = logger
+
         self.framework.observe(self.on.install, self._on_install)
         self.framework.observe(
             self.on.collect_and_upload_action, self._on_collect_and_upload
@@ -36,8 +42,11 @@ class SosreportCharm(CharmBase):
         self.model.unit.status = ActiveStatus("Unit is ready.")
 
     def _on_collect_and_upload(self, event):
+        asyncio.run(self._on_collect_and_upload_async(event))
+
+    async def _on_collect_and_upload_async(self, event):
         """Collect sosreports an upload to remove server."""
-        ret, msg = self._collect_sos(event)
+        ret, msg = await self._collect_sos(event)
         if not ret:
             event.fail(msg)
             return
@@ -53,7 +62,7 @@ class SosreportCharm(CharmBase):
 
         self._clear_local_sos(files)
 
-    def _collect_sos(self, event):
+    async def _collect_sos(self, event):
         """Collect system state information and logs.
 
         Arguments:
@@ -63,8 +72,19 @@ class SosreportCharm(CharmBase):
         tuple -- a tuple of boolean indicating success or failure, and error message
         if failure.
         """
-        # TOFIX
-        ips = "10.211.227.47"
+        # TODO: cleanup
+        units = event.params["units"]
+        model = self.model.config["model"]
+
+        u = []
+        a = []
+        for t in units.split(","):
+            if "/" in t:
+                u.append(t)
+            else:
+                a.append(t)
+
+        ips = await self._get_unit_ips(model, u, a)
         ssh_user = self.model.config["ssh-user"]
         # Build the sos collect command
         collect_cmd = f"sudo -u {ssh_user} sos collect --no-local \
@@ -140,6 +160,48 @@ class SosreportCharm(CharmBase):
         except (socket.error, paramiko.ssh_exception.AuthenticationException) as e:
             logger.error(str(e))
             return False, str(e)
+
+    async def _connect_controller(self) -> None:
+        if not self.controller.is_connected():
+            # TODO: validate config vars
+            await self.controller.connect(
+                endpoint=self.model.config["juju-endpoint"],
+                username=self.model.config["juju-username"],
+                password=self.model.config["juju-password"],
+                cacert=self.model.config["juju-cacert"],
+            )
+
+    async def _get_unit_ips(self, model_name, units, applications):
+        unit_ips = []
+        await self._connect_controller()
+        model = await self.controller.get_model(model_name)
+        status = await model.get_status()
+        await model.disconnect()
+
+        for application in applications:
+            logger.info(
+                f"Getting public IPs for application {model_name}/{application}"
+            )
+            try:
+                for unit in status.applications[application].units:
+                    unit_ips.append(
+                        str(status.applications[application].units[unit].public_address)
+                    )
+            except Exception as err:  # pylint: disable=W0703
+                logger.error(err)
+
+        for unit in units:
+            # TOFIX
+            logger.info(f"Getting public IP for unit {model_name}/{unit}")
+            application = unit.split("/", 1)[0]
+            try:
+                unit_ips.append(
+                    str(status.applications[application].units[unit].public_address)
+                )
+            except Exception as err:  # pylint: disable=W0703
+                logger.error(err)
+
+        return ",".join(unit_ips)
 
 
 if __name__ == "__main__":
