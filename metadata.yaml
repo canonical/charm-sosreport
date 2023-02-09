@@ -1,0 +1,15 @@
+# Copyright 2021 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+name: sosreport
+display-name: |
+ sosreport
+description: |
+ Collect and upload sosreports. Run hotsos to perform analysis of common cloud applications.
+summary: A subordinate charm for collecting sosreports and troubleshooting common issues.
+subordinate: true
+requires:
+ general-info:
+   interface: juju-info
+   scope: container
+
