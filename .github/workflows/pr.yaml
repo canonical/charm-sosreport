@@ -21,4 +21,4 @@ jobs:
       python-version-unit: "['3.8', '3.10']"
       python-version-func: "3.10"
       tox-version: "<4"
-      commands: "['FUNC_ARGS=\"--series jammy\" make functional']"
+      commands: "['FUNC_ARGS=\"--series bionic\" make functional', 'FUNC_ARGS=\"--series focal\" make functional', 'FUNC_ARGS=\"--series jammy\" make functional']"
