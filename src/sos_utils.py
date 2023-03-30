@@ -26,10 +26,12 @@ class SoSCollectHelper:
         self.uploader = uploader
         self.sos_collect_cmd = f"{self.sos_collect_cmd_base} {self.sos_default_options}"
 
-    def collect(self, nodes: str, extra_args: Optional[str] = None) -> bool:
+    def collect(
+        self, nodes: str, ssh_user: str = "ubuntu", extra_args: Optional[str] = None
+    ) -> bool:
         """Collect the sos report from selected nodes."""
         success, msg = True, "sos collection suceeded."
-        command = f"{self.sos_collect_cmd} --nodes {nodes}"
+        command = f"sudo -u {ssh_user} {self.sos_collect_cmd} --nodes {nodes}"
         if extra_args is not None:
             command = f"{command} {extra_args}"
 

@@ -81,7 +81,9 @@ class SosreportCharm(CharmBase):
             ]
         )
 
-        success = self.sos_collect_helper.collect(",".join(nodes), extra_args)
+        success = self.sos_collect_helper.collect(
+            ",".join(nodes), self.model.config["ssh-user"], extra_args
+        )
 
         if not success:
             event.fail("Failed to collect sos reports. Check juju debug-log for more details.")
