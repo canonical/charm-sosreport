@@ -67,6 +67,7 @@ async def _get_nodes(  # pylint: disable=too-many-arguments
     endpoint: str,
     username: str,
     password: str,
+    cacert: str,
     model_name: str,
     apps_string: Optional[str] = None,
     units_string: Optional[str] = None,
@@ -74,7 +75,9 @@ async def _get_nodes(  # pylint: disable=too-many-arguments
 ) -> Set[str]:
     """Get the public ip address of the nodes in juju 'cluster'."""
     controller = Controller()
-    await controller.connect(endpoint=endpoint, username=username, password=password)
+    await controller.connect(
+        endpoint=endpoint, username=username, password=password, cacert=cacert
+    )
 
     all_models = set(controller.list_models())
     if model_name not in all_models:
@@ -105,10 +108,13 @@ def get_nodes(  # pylint: disable=too-many-arguments
     endpoint: str,
     username: str,
     password: str,
+    cacert: str,
     model_name: str,
     apps: Optional[str] = None,
     units: Optional[str] = None,
     machines: Optional[str] = None,
 ) -> Set[str]:
     """Get the public ip address of the nodes in juju 'cluster'."""
-    return asyncio.run(_get_nodes(endpoint, username, password, model_name, apps, units, machines))
+    return asyncio.run(
+        _get_nodes(endpoint, username, password, cacert, model_name, apps, units, machines)
+    )

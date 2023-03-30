@@ -26,6 +26,10 @@ options:
     type: string
     default: ""
     description: ""
+  juju-cacert:
+    type: string
+    default: ""
+    description: ""
   server:
     type: string
     default: "files.support.canonical.com"

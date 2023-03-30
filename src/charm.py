@@ -58,6 +58,7 @@ class SosreportCharm(CharmBase):
             endpoint=self.model.config["juju-endpoint"],
             username=self.model.config["juju-username"],
             password=self.model.config["juju-password"],
+            cacert=self.model.config["juju-cacert"],
             model_name=event.params["model-name"] or self.model.config["model-name"],
             apps=event.params["apps"],
             units=event.params["units"],
