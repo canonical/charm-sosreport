@@ -2,39 +2,67 @@
 # See LICENSE file for licensing details.
 #
 options:
+  model-name:
+    type: string
+    default: ""
+    description: |
+      The model where the apps/units/machines resides. This will be the default
+      to use when "model-name" is not specified in "collect" action.
+  upload-method:
+    type: string
+    default: "sftp"
+    description: |
+      The method to use when uploading sosreports to the remote server.
+      Supported methods are "[sftp, scp, http]" (Default to "sftp").
+  juju-username:
+    type: string
+    default: ""
+    description: ""
+  juju-password:
+    type: string
+    default: ""
+    description: ""
+  juju-endpoint:
+    type: string
+    default: ""
+    description: ""
+  server:
+    type: string
+    default: "files.support.canonical.com"
+    description: |
+      Specify the server to upload the sosreport.
+  username:
+    type: string
+    default: "ubuntu"
+    description: |
+      Specify the username for server.
+  password:
+    type: string
+    default: "ubuntu"
+    description: |
+      Specify the password for server.
+  private-key:
+    type: string
+    default: ""
+    description: |
+      Specify the private key needed by the server.
+  tmp-dir:
+    type: string
+    default: "/tmp"
+    description: |
+       Specify a temporary directory to save sos archives to. By default one
+       will be created in "/tmp" and then removed after sos collect has
+       finished running.
+  sos-cmd:
+    type: string
+    default: ""
+    description: |
+      Define all options that sosreport should be run with on the nodes.  The
+      sosreport command will execute as 'sosreport --batch SOS_CMD'. The
+      BATCH option cannot  be  removed  from  the sosreport command as it is
+      required to run sosreport non-interactively for sos collect to
+      function.
   ssh-user:
+    type: string
     default: "ubuntu"
     description: Specify an SSH user for sos collect to connect to nodes with.
-    type: string
-  units:
-    default: ""
-    description: Provide a comma-delimited list of units to collect sosreports from.
-    type: string
-  model:
-    default: ""
-    type: string
-  server:
-    #default: "https://files.support.canonical.com/uploads/"
-    default: "files.support.canonical.com"
-    description: Specify a server to upload the sosreport.
-    type: string 
-  server-username:
-    default: "ubuntu"
-    description: ""
-    type: string 
-  server-password:
-    default: "ubuntu"
-    description: ""
-    type: string
-  juju-username:
-    description: ""
-    type: string
-  juju-password:
-    description: ""
-    type: string
-  juju-endpoint:
-    description: ""
-    type: string
-  juju-cacert:
-    description: ""
-    type: string

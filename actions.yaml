@@ -2,26 +2,73 @@
 # See LICENSE file for licensing details.
 # Learn more about actions at: https://juju.is/docs/sdk/actions
 
-collect-and-upload:
+collect:
   description: Start a sosreport run on the unit.
   params:
-    units: 
+    model-name:
       type: string
-      description: The machines units to collect sosreport from
-    case:
+      default: ""
+      description: |
+        The model where the apps/units/machines resides. The default is to use
+        the "model-name" defined in the config.yaml.
+    apps:
       type: string
-      description: Value to pass to the --case-id parameter of sosreport
+      default: ""
+      description: |
+        The application names to collect sos report from. The input should be a
+        comma separated string containing all application name. For example,
+        "ubuntu,ubuntu1,ubuntu2".  If none of apps/units/machines is provided,
+        it will collect sos report from all units within the model.
+    units:
+      type: string
+      default: ""
+      description: |
+        The unit names to collect sos report from. The input should be a comma
+        separated string containing all unit names. For example,
+        "ubuntu/0,ubuntu/1,ubuntu/2".  If none of apps/units/machines is
+        provided, it will collect sos report from all units within the model.
+    machines:
+      type: string
+      default: ""
+      description: |
+        The machine id to collect sos report from. The input should be a comma
+        separated string containing all machine ids. For example, "0,1,2,3,4".
+        If none of apps/units/machines is provided, it will collect sos report
+        from all units within the model.
+    case-id:
+      type: string
+      description: |
+        The value to pass to the --case-id parameter of "sos collect".
     extra-args:
       type: string
-      description: Additional arguments which shall be passed to the sosreport command
+      default: ""
+      description: |
+        Additional arguments which shall be passed to the "sos collect"
+        command.
+  required:
+    - case-id
+  additionalProperties: false
+upload:
+  description: Upload sos reports to target.
+  params:
+    cleanup:
+      type: boolean
+      default: false
+      description: |
+        Clean up the sos reports after they are successfully uploaded to the
+        target.
+cleanup:
+  description: Force a cleanup of previously collected sos reports on the unit.
+  params:
+    case-id:
+      type: string
+      description: |
+        The value to pass to the --case-id parameter of "sos collect".
+  required:
+    - case-id
+run-hotsos:
+  description: Run hotsos
   additionalProperties: false
 interrupt-collection:
   description: Stop any ongoing sosreport.
   additionalProperties: false
-clean-up:
-  description: Force a cleanup of previously collected sosreports on the unit.
-  additionalProperties: false
-run-hotsos:
-  description: Run hotsos
-  additionalProperties: false
-
