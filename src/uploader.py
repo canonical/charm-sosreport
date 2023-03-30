@@ -11,53 +11,14 @@ from paramiko.sftp_client import SFTPClient
 
 logger = logging.getLogger(__name__)
 
+AVAILABLE_METHODS = {"sftp", "scp", "http"}
+
 
 class UnknownUploaderError(Exception):
     """Unknown uploader exception."""
 
 
-class Uploader:
-    """An uploader factory class."""
-
-    available_methods = {"sftp", "scp", "http"}
-
-    def __init__(self, upload_method: str, **kwargs: Any):
-        """Initialize the uploader class."""
-        self.uploader = self.create_uploader(upload_method, **kwargs)
-
-    def upload(self, *args: Any, **kwargs: Any) -> bool:
-        """Call concrete uploader's upload method."""
-        if self.uploader is None:
-            raise UnknownUploaderError("no uploader is specified.")
-        return self.uploader.upload(*args, **kwargs)
-
-    def create_uploader(self, upload_method: str, **kwargs: Any) -> Optional["BaseUploader"]:
-        """Create an concrete uploader base on the upload method."""
-        uploader = None
-        if upload_method == "sftp":
-            server = kwargs.get("server", "")
-            username = kwargs.get("username", "")
-            password = kwargs.get("password", "")
-            uploader = SftpUploader(server, username, password)
-        elif upload_method == "scp":
-            raise UnknownUploaderError(
-                f"'{upload_method}' is not supported. "
-                f"Supported upload methods are {self.available_methods}"
-            )
-        elif upload_method == "http":
-            raise NotImplementedError(
-                f"'{upload_method}' is not implemented. "
-                f"Supported upload methods are {self.available_methods}"
-            )
-        else:
-            raise NotImplementedError(
-                f"'{upload_method}' is not implemented. "
-                f"Supported upload methods are {self.available_methods}"
-            )
-        return uploader
-
-
-class BaseUploader(ABC):  # pylint: disable=too-few-public-methods
+class Uploader(ABC):  # pylint: disable=too-few-public-methods
     """Base class for any uploader."""
 
     @abstractmethod
@@ -65,7 +26,7 @@ class BaseUploader(ABC):  # pylint: disable=too-few-public-methods
         """Upload the report to the server."""
 
 
-class SftpUploader(BaseUploader):  # pylint: disable=too-few-public-methods
+class SftpUploader(Uploader):  # pylint: disable=too-few-public-methods
     """A concrete sftp uploader class."""
 
     def __init__(self, server: str, username: str, password: str):
@@ -106,3 +67,29 @@ class SftpUploader(BaseUploader):  # pylint: disable=too-few-public-methods
         except (socket.error, paramiko.ssh_exception.AuthenticationException) as error:
             logger.error(str(error))
             return False
+
+
+def create_uploader(upload_method: str, **kwargs: Any) -> Uploader:
+    """Create a uploader based on the upload method and kwargs."""
+    uploader = None
+    if upload_method == "sftp":
+        server = kwargs.get("server", "")
+        username = kwargs.get("username", "")
+        password = kwargs.get("password", "")
+        uploader = SftpUploader(server, username, password)
+    elif upload_method == "scp":
+        raise UnknownUploaderError(
+            f"'{upload_method}' is not supported. "
+            f"Supported upload methods are {AVAILABLE_METHODS}"
+        )
+    elif upload_method == "http":
+        raise NotImplementedError(
+            f"'{upload_method}' is not implemented. "
+            f"Supported upload methods are {AVAILABLE_METHODS}"
+        )
+    else:
+        raise NotImplementedError(
+            f"'{upload_method}' is not implemented. "
+            f"Supported upload methods are {AVAILABLE_METHODS}"
+        )
+    return uploader

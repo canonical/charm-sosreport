@@ -12,7 +12,7 @@ from ops.model import ActiveStatus
 
 from cluster import get_nodes
 from sos_utils import SoSCollectHelper
-from uploader import Uploader
+from uploader import create_uploader
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ class SosreportCharm(CharmBase):
         self.framework.observe(self.on.cleanup_action, self._on_cleanup_action)
         self.framework.observe(self.on.upload_action, self._on_upload_action)
 
-        uploader = Uploader(
+        uploader = create_uploader(
             self.model.config["upload-method"],
             server=self.model.config["server"],
             username=self.model.config["username"],
