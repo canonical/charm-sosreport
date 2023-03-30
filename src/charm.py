@@ -60,16 +60,22 @@ class SosreportCharm(CharmBase):
             password=self.model.config["juju-password"],
             cacert=self.model.config["juju-cacert"],
             model_name=event.params["model-name"] or self.model.config["model-name"],
-            apps=event.params["apps"],
-            units=event.params["units"],
-            machines=event.params["machines"],
+            apps_string=event.params["apps"],
+            units_string=event.params["units"],
+            machines_string=event.params["machines"],
         )
 
         extra_args = " ".join(
             [
-                f"--tmp-dir {self.model.config['tmp-dir']}",
-                f"--sos-cmd {self.model.config['sos-cmd']}",
-                f"--ssh-user {self.model.config['ssh-user']}",
+                f"--tmp-dir {self.model.config['tmp-dir']}"
+                if self.model.config["tmp-dir"]
+                else "",
+                f"--sos-cmd {self.model.config['sos-cmd']}"
+                if self.model.config["sos-cmd"]
+                else "",
+                f"--ssh-user {self.model.config['ssh-user']}"
+                if self.model.config["ssh-user"]
+                else "",
                 f"--case-id {event.params['case-id']}",
                 f"{event.params['extra-args']}",
             ]

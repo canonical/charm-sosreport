@@ -1,6 +1,6 @@
 """Collections of juju helper functions."""
 import asyncio
-from typing import List, Optional, Set
+from typing import List, Set
 
 from juju.controller import Controller
 from juju.model import Model
@@ -69,9 +69,9 @@ async def _get_nodes(  # pylint: disable=too-many-arguments
     password: str,
     cacert: str,
     model_name: str,
-    apps_string: Optional[str] = None,
-    units_string: Optional[str] = None,
-    machines_string: Optional[str] = None,
+    apps_string: str = "",
+    units_string: str = "",
+    machines_string: str = "",
 ) -> Set[str]:
     """Get the public ip address of the nodes in juju 'cluster'."""
     controller = Controller()
@@ -79,7 +79,7 @@ async def _get_nodes(  # pylint: disable=too-many-arguments
         endpoint=endpoint, username=username, password=password, cacert=cacert
     )
 
-    all_models = set(controller.list_models())
+    all_models = set(await controller.list_models())
     if model_name not in all_models:
         raise ModelNotFoundError(
             f"{model_name} does not exists. Avaliable models are {all_models}."
@@ -89,15 +89,15 @@ async def _get_nodes(  # pylint: disable=too-many-arguments
 
     nodes = set()
 
-    if apps_string is not None:
+    if apps_string != "":
         apps = parse_comma_separated_string(apps_string)
         nodes.update(_get_ip_by_apps(model, apps))
 
-    if units_string is not None:
+    if units_string != "":
         units = parse_comma_separated_string(units_string)
         nodes.update(_get_ip_by_units(model, units))
 
-    if machines_string is not None:
+    if machines_string != "":
         machines = parse_comma_separated_string(machines_string)
         nodes.update(_get_ip_by_machines(model, machines))
 
@@ -110,11 +110,20 @@ def get_nodes(  # pylint: disable=too-many-arguments
     password: str,
     cacert: str,
     model_name: str,
-    apps: Optional[str] = None,
-    units: Optional[str] = None,
-    machines: Optional[str] = None,
+    apps_string: str = "",
+    units_string: str = "",
+    machines_string: str = "",
 ) -> Set[str]:
     """Get the public ip address of the nodes in juju 'cluster'."""
     return asyncio.run(
-        _get_nodes(endpoint, username, password, cacert, model_name, apps, units, machines)
+        _get_nodes(
+            endpoint,
+            username,
+            password,
+            cacert,
+            model_name,
+            apps_string,
+            units_string,
+            machines_string,
+        )
     )

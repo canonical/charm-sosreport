@@ -29,11 +29,9 @@ class SoSCollectHelper:
     def collect(self, nodes: str, extra_args: Optional[str] = None) -> bool:
         """Collect the sos report from selected nodes."""
         success, msg = True, "sos collection suceeded."
-        command = self.sos_collect_cmd
+        command = f"{self.sos_collect_cmd} --nodes {nodes}"
         if extra_args is not None:
             command = f"{command} {extra_args}"
-
-        command = f"{command} {nodes}"
 
         try:
             logger.info("running command %s", command)
