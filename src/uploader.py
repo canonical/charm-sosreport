@@ -8,6 +8,7 @@ from typing import Any, List, Optional
 
 import paramiko
 from paramiko.sftp_client import SFTPClient
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +70,46 @@ class SftpUploader(Uploader):  # pylint: disable=too-few-public-methods
             return False
 
 
+class HTTPUploader(Uploader):
+    def __init__(self, url: str, username: str, password: str):
+        """Initialize the http uploader class."""
+        self.url = url
+        self.data = {
+            "username": username,
+            "password": password,
+        }
+
+    def upload(self, file: List[str]) -> bool:
+        """Upload file with HTTP protocol."""
+        success = True
+        for file in files:
+            localpath = Path(file)
+            remotepath = localpath.parent / localpath.name.replace("sos-collector", "sosreport", 1)
+            success = self._upload(localpath, remotepath)
+        return success
+
+    def _upload(self, localpath: str, remotepath: str):
+        try:
+            logger.info(
+                "uploading local file '%s' with HTTP to '%s' '%s'.",
+                localpath,
+                self.url,
+                remotepath,
+            )
+            # Need to verify the login method
+            with open(localpath, "rb") as f:
+                resp = requests.post(
+                    self.url,
+                    files={remotepath: f},
+                    data=self.data,
+                )
+                if resp.status_code == 200:
+                    return True
+        except Exception as err:
+            logger.warning(err)
+        return False
+
+
 def create_uploader(upload_method: str, **kwargs: Any) -> Uploader:
     """Create a uploader based on the upload method and kwargs."""
     uploader = None
@@ -83,10 +124,10 @@ def create_uploader(upload_method: str, **kwargs: Any) -> Uploader:
             f"Supported upload methods are {AVAILABLE_METHODS}"
         )
     elif upload_method == "http":
-        raise NotImplementedError(
-            f"'{upload_method}' is not implemented. "
-            f"Supported upload methods are {AVAILABLE_METHODS}"
-        )
+        url = kwargs.get("server")
+        username = kwargs.get("username", "")
+        password = kwargs.get("password", "")
+        uploader = HTTPUploader(url, username, password)
     else:
         raise NotImplementedError(
             f"'{upload_method}' is not implemented. "

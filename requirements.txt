@@ -1,2 +1,3 @@
 ops >= 1.2.0
 juju < 3
+requests
